@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Nice Bottom bar</string>
+     <string name="home">home</string>
+     <string name="order">order</string>
+     <string name="valut">valut</string>
+     <string name="account">account</string>
+     <string name="ellipsis">&#8230;</string>
+    
+
+</resources>

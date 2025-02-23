@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     android:layout_height="match_parent"
+     android:layout_width="match_parent"
+     android:orientation="vertical">
+
+    <FrameLayout
+         android:layout_height="0dp"
+         android:layout_width="match_parent"
+         android:layout_weight="1"
+         android:id="@+id/fragment_container">
+
+    </FrameLayout>
+
+    <zs.bottom.zsbottombar.ZsBottomBar
+         android:layout_height="60dp"
+         android:layout_width="match_parent"
+         app:textColorActive="#0cd000"
+         app:indicatorInterpolator="accelerateDecelerate"
+         app:indicatorWidth="50dp"
+         app:indicatorGravity="top"
+         app:iconMargin="5dp"
+         android:layout_gravity="bottom"
+         app:menu="@menu/bottom_menu"
+         app:textColor="#0cdf00"
+         app:badgeColor="#000000"
+         android:id="@+id/bottomBar"
+         app:indicatorColor="#0000cd" />
+
+</LinearLayout>

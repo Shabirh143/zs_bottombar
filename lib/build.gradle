@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+
+android {
+    namespace 'zs.bottom.zsbottombar'
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 21
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId = "com.github.Shabirh143"
+                artifactId = "libcheck"
+                version = "1.0.0"
+
+                // Ensure AAR exists before publishing
+                artifact("$buildDir/outputs/aar/${project.name}-release.aar") {
+                    builtBy(tasks.named("assembleRelease"))
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+}

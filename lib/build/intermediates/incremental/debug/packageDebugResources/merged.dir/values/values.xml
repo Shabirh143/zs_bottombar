@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="selectedColor">#FF5722</color>
+    <color name="unselectedColor">#757575</color>
+    <string name="account">account</string>
+    <string name="app_name">Nice Bottom bar</string>
+    <string name="ellipsis">…</string>
+    <string name="home">home</string>
+    <string name="order">order</string>
+    <string name="valut">valut</string>
+    <declare-styleable name="NiceBottomBar">
+        <attr format="reference" name="menu"/>
+        <attr format="color" name="backgroundColor"/>
+        <attr format="color" name="indicatorColor"/>
+        <attr format="dimension" name="indicatorWidth"/>
+        <attr format="boolean" name="indicatorEnabled"/>
+        <attr format="color" name="textColor"/>
+        <attr format="reference" name="itemFontFamily"/>
+        <attr format="color" name="textColorActive"/>
+        <attr format="dimension" name="textSize"/>
+        <attr format="dimension" name="iconSize"/>
+        <attr format="dimension" name="iconMargin"/>
+        <attr format="integer" name="activeItem"/>
+	    <attr format="enum" name="indicatorInterpolator">
+		    <enum name="accelerate" value="0"/>
+		    <enum name="decelerate" value="1"/>
+		    <enum name="accelerateDecelerate" value="2"/>
+		    <enum name="anticipate" value="3"/>
+		    <enum name="anticipateOvershoot" value="4"/>
+		    <enum name="linear" value="5"/>
+		    <enum name="overshoot" value="6"/>
+	    </attr>
+	    <attr format="color" name="badgeColor"/>
+        <attr format="enum" name="indicatorGravity">
+            <enum name="top" value="0"/>
+            <enum name="bottom" value="1"/>
+        </attr>
+    </declare-styleable>
+</resources>

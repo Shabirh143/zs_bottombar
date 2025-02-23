@@ -1,0 +1,40 @@
+R_DEF: Internal format may change without notice
+local
+attr? activeItem
+attr? backgroundColor
+attr? badgeColor
+attr? iconMargin
+attr? iconSize
+attr? indicatorColor
+attr? indicatorEnabled
+attr? indicatorGravity
+attr? indicatorInterpolator
+attr? indicatorWidth
+attr? itemFontFamily
+attr? menu
+attr? textColor
+attr? textColorActive
+attr? textSize
+color selectedColor
+color selector
+color unselectedColor
+drawable bottom_nav_indicator
+drawable bottom_nav_item_background
+drawable ic_home
+drawable ic_launcher_background
+id accelerate
+id accelerateDecelerate
+id anticipate
+id anticipateOvershoot
+id bottom
+id decelerate
+id linear
+id overshoot
+id top
+string account
+string app_name
+string ellipsis
+string home
+string order
+string valut
+styleable NiceBottomBar menu backgroundColor indicatorColor indicatorWidth indicatorEnabled textColor itemFontFamily textColorActive textSize iconSize iconMargin activeItem indicatorInterpolator badgeColor indicatorGravity
