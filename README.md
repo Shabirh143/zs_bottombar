@@ -10,6 +10,7 @@ Step 1. Add the JitPack repository to your build file
 	}
 
 Step 2. Add the dependency
+
 dependencies {
 	        implementation("com.github.Shabirh143:zs_bottombar:1.0.0")
 	}
