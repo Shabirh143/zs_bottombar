@@ -17,4 +17,3 @@ dependencies {
  
  [![](https://jitpack.io/v/Shabirh143/zs_bottombar.svg)](https://jitpack.io/#Shabirh143/zs_bottombar)
  
-
