@@ -17,16 +17,22 @@
     <zs.bottom.zsbottombar.ZsBottomBar
          android:layout_height="60dp"
          android:layout_width="match_parent"
-         app:textColorActive="#0cd000"
-         app:indicatorInterpolator="accelerateDecelerate"
+         app:textColorActive="#FF5722"
+         app:iconSize="24dp"
+         app:indicatorInterpolator="overshoot"
          app:indicatorWidth="50dp"
          app:indicatorGravity="top"
          app:iconMargin="5dp"
-         android:layout_gravity="bottom"
+         app:indicatorHeight="2dp"
+         app:indicatorAnimationDuration="300"
+         app:activeItem="0"
+         app:indicatorEnabled="true"
+         app:indicatorAnimationType="wave"
          app:menu="@menu/bottom_menu"
-         app:textColor="#0cdf00"
-         app:badgeColor="#000000"
+         app:textColor="#000000"
+         app:badgeColor="#ff5722 "
+         app:textSize="14sp"
          android:id="@+id/bottomBar"
-         app:indicatorColor="#0000cd" />
+         app:indicatorColor="@color/indicator_color" />
 
 </LinearLayout>
