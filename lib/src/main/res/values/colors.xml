@@ -1,7 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <color name="text_active">#FF5722</color> <!-- Change to your desired color -->
+    <color name="text_default">#757575</color>
+    <color name="indicator_border">#FFC107</color>
+    <color name="shadow">#000000</color>
+
     <color name="selectedColor">#FF5722</color>
     <color name="unselectedColor">#757575</color>
+
+    <!-- Background Colors -->
+    <color name="bottom_bar_background">#121212</color>
+    <color name="bottom_bar_background_light">#FFFFFF</color>
+
+    <!-- Indicator Colors -->
+    <color name="indicator_color">#FF4081</color>
+    
+
+    <!-- Text Colors -->
+    <color name="text_color">#B3B3B3</color>
+    <color name="text_color_active">#FFFFFF</color>
+
+    <!-- Icon Colors -->
+    <color name="icon_color">#B3B3B3</color>
+    <color name="icon_color_active">#FF4081</color>
+    <color name="icon_color_filter">#FF80A4</color>
+
+    <!-- Badge Colors -->
+    <color name="badge_color">#FF0000</color>
+    <color name="badge_border_color">#990000</color>
+    <color name="badge_shadow_color">#660000</color>
+
+    <!-- Badge Text -->
+    <color name="badge_text_color">#FFFFFF</color>
+
+   
 
 </resources>
