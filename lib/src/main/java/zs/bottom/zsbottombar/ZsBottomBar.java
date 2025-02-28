@@ -3,44 +3,43 @@ package zs.bottom.zsbottombar;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Typeface;
+import android.graphics.*;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
-import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import java.util.List;
 
 public class ZsBottomBar extends View {
 
-    private int barBackgroundColor;
-    private int barIndicatorColor;
-    private float barIndicatorWidth;
-    private boolean barIndicatorEnabled = true;
-    private int barIndicatorGravity = 1;
-    private float itemIconSize;
-    private float itemIconMargin;
-    private int itemTextColor;
-    private int itemTextColorActive;
-    private float itemTextSize;
-    private int itemBadgeColor;
-    private int itemFontFamily;
-    private int activeItem = 0;
+    // Basic attributes
+    private int barBackgroundColor, barIndicatorColor, itemTextColor, itemTextColorActive;
+    private int activeItemColor, itemBadgeColor, itemFontFamily;
+    private float barIndicatorWidth, itemIconSize, itemIconMargin, itemTextSize;
+    private boolean isIndicatorEnabled = true;
+    private int indicatorGravity = 1, activeItemIndex = 0;
+    private float indicatorX = 0f;
 
-    private int currentActiveItemColor;
-    private float indicatorLocation = 0f;
+    // Indicator Shape & Borders
+    private float indicatorBorderWidth,indicatorHeight;
+    
+    // Indicator Animations
+    private int indicatorAnimationType, indicatorAnimationDuration;
+
+    // Other attributes
+    private int  indicatorInterpolator;
+
     private List<BottomBarItem> items;
-    private OnItemSelectedListener onItemSelectedListener;
+    private OnItemSelectedListener itemSelectedListener;
 
-    private final Paint paintIndicator = new Paint();
-    private final Paint paintText = new Paint();
-    private final Paint paintBadge = new Paint();
+    private final Paint indicatorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     public ZsBottomBar(Context context) {
         super(context);
@@ -53,73 +52,115 @@ public class ZsBottomBar extends View {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        barBackgroundColor = Color.parseColor(Constants.WHITE_COLOR_HEX);
-        barIndicatorColor = Color.parseColor(Constants.DEFAULT_INDICATOR_COLOR);
-        itemTextColor = Color.parseColor(Constants.DEFAULT_TEXT_COLOR);
-        itemTextColorActive = Color.parseColor(Constants.DEFAULT_TEXT_COLOR_ACTIVE);
-        itemBadgeColor = itemTextColorActive;
-        barIndicatorWidth = d2p(50f);
-        itemIconSize = d2p(18f);
-        itemIconMargin = d2p(3f);
-        itemTextSize = d2p(11f);
-        currentActiveItemColor = itemTextColor;
-
+        setDefaults();
         if (attrs != null) {
-            TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.NiceBottomBar, 0, 0);
-            barBackgroundColor = typedArray.getColor(R.styleable.NiceBottomBar_backgroundColor, barBackgroundColor);
-            barIndicatorColor = typedArray.getColor(R.styleable.NiceBottomBar_indicatorColor, barIndicatorColor);
-            barIndicatorWidth = typedArray.getDimension(R.styleable.NiceBottomBar_indicatorWidth, barIndicatorWidth);
-            barIndicatorEnabled = typedArray.getBoolean(R.styleable.NiceBottomBar_indicatorEnabled, barIndicatorEnabled);
-            itemTextColor = typedArray.getColor(R.styleable.NiceBottomBar_textColor, itemTextColor);
-            itemTextColorActive = typedArray.getColor(R.styleable.NiceBottomBar_textColorActive, itemTextColorActive);
-            itemTextSize = typedArray.getDimension(R.styleable.NiceBottomBar_textSize, itemTextSize);
-            itemIconSize = typedArray.getDimension(R.styleable.NiceBottomBar_iconSize, itemIconSize);
-            itemIconMargin = typedArray.getDimension(R.styleable.NiceBottomBar_iconMargin, itemIconMargin);
-            activeItem = typedArray.getInt(R.styleable.NiceBottomBar_activeItem, activeItem);
-            barIndicatorGravity = typedArray.getInt(R.styleable.NiceBottomBar_indicatorGravity, barIndicatorGravity);
-            itemBadgeColor = typedArray.getColor(R.styleable.NiceBottomBar_badgeColor, itemBadgeColor);
-            itemFontFamily = typedArray.getResourceId(R.styleable.NiceBottomBar_itemFontFamily, itemFontFamily);
-            items = new BottomBarParser(context, typedArray.getResourceId(R.styleable.NiceBottomBar_menu, 0)).parse();
+            TypedArray typedArray =
+                    context.obtainStyledAttributes(attrs, R.styleable.NiceBottomBar);
+            loadAttributes(context, typedArray);
             typedArray.recycle();
         }
-
+        setupPaints();
         setBackgroundColor(barBackgroundColor);
+    }
 
-        paintIndicator.setAntiAlias(true);
-        paintIndicator.setStyle(Paint.Style.FILL);
-        paintIndicator.setStrokeWidth(6f);
-        paintIndicator.setColor(barIndicatorColor);
+    private void setDefaults() {
+        barBackgroundColor = Color.WHITE;
+        barIndicatorColor = Color.BLUE;
+        itemTextColor = Color.DKGRAY;
+        itemTextColorActive = Color.BLACK;
+        activeItemColor = itemTextColorActive;
+        barIndicatorWidth = dpToPx(50f);
+        itemIconSize = dpToPx(24f);
+        itemIconMargin = dpToPx(5f);
+        itemTextSize = dpToPx(12f);
+        indicatorHeight = dpToPx(2f);
+    }
 
-        paintText.setAntiAlias(true);
-        paintText.setStyle(Paint.Style.FILL);
-        paintText.setColor(itemTextColor);
-        paintText.setTextSize(itemTextSize);
-        paintText.setTextAlign(Paint.Align.CENTER);
-        paintText.setFakeBoldText(true);
+    private void loadAttributes(Context context, TypedArray typedArray) {
+        // Basic attributes
+        barBackgroundColor =
+                typedArray.getColor(R.styleable.NiceBottomBar_backgroundColor, barBackgroundColor);
+        barIndicatorColor =
+                typedArray.getColor(R.styleable.NiceBottomBar_indicatorColor, barIndicatorColor);
+        barIndicatorWidth =
+                typedArray.getDimension(
+                        R.styleable.NiceBottomBar_indicatorWidth, barIndicatorWidth);
+        isIndicatorEnabled =
+                typedArray.getBoolean(
+                        R.styleable.NiceBottomBar_indicatorEnabled, isIndicatorEnabled);
+        itemTextColor = typedArray.getColor(R.styleable.NiceBottomBar_textColor, itemTextColor);
+        itemTextColorActive =
+                typedArray.getColor(R.styleable.NiceBottomBar_textColorActive, itemTextColorActive);
+        itemTextSize = typedArray.getDimension(R.styleable.NiceBottomBar_textSize, itemTextSize);
+        itemIconSize = typedArray.getDimension(R.styleable.NiceBottomBar_iconSize, itemIconSize);
+        itemIconMargin =
+                typedArray.getDimension(R.styleable.NiceBottomBar_iconMargin, itemIconMargin);
+        activeItemIndex = typedArray.getInt(R.styleable.NiceBottomBar_activeItem, activeItemIndex);
+        indicatorGravity =
+                typedArray.getInt(R.styleable.NiceBottomBar_indicatorGravity, indicatorGravity);
 
-        paintBadge.setAntiAlias(true);
-        paintBadge.setStyle(Paint.Style.FILL);
-        paintBadge.setColor(itemBadgeColor);
-        paintBadge.setStrokeWidth(4f);
+        
+        indicatorBorderWidth =
+                typedArray.getDimension(R.styleable.NiceBottomBar_indicatorBorderWidth, 0);
+        indicatorHeight =
+                typedArray.getDimension(R.styleable.NiceBottomBar_indicatorHeight, indicatorHeight);
+        
+        
 
-        if (itemFontFamily != 0) {
-            Typeface typeface = ResourcesCompat.getFont(context, itemFontFamily);
-            paintText.setTypeface(typeface);
+        // Animations
+        indicatorAnimationType =
+                typedArray.getInt(R.styleable.NiceBottomBar_indicatorAnimationType, 0);
+        indicatorInterpolator =
+                typedArray.getInt(R.styleable.NiceBottomBar_indicatorInterpolator, 5);
+
+       
+
+        // Menu Items
+        int menuResId = typedArray.getResourceId(R.styleable.NiceBottomBar_menu, 0);
+        if (menuResId != 0) {
+            items = new BottomBarParser(context, menuResId).parse();
         }
     }
 
+    private Interpolator getInterpolator() {
+        switch (indicatorInterpolator) {
+            case 0:
+                return new android.view.animation.AccelerateInterpolator();
+            case 1:
+                return new android.view.animation.DecelerateInterpolator();
+            case 2:
+                return new android.view.animation.AccelerateDecelerateInterpolator();
+            case 3:
+                return new android.view.animation.AnticipateInterpolator();
+            case 4:
+                return new android.view.animation.AnticipateOvershootInterpolator();
+            case 6:
+                return new android.view.animation.OvershootInterpolator();
+            default:
+                return new LinearInterpolator();
+        }
+    }
+
+    private void setupPaints() {    
+    indicatorPaint.setStyle(Paint.Style.FILL);    
+    indicatorPaint.setColor(barIndicatorColor);    
+
+    textPaint.setTextSize(itemTextSize);    
+    textPaint.setTextAlign(Paint.Align.CENTER);    
+
+    }
+    
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         if (items != null && !items.isEmpty()) {
-            setActiveItem(activeItem); // Initialize correctly on first view
+            setActiveItem(activeItemIndex);
         }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
         if (items == null || items.isEmpty()) return;
 
         int itemCount = items.size();
@@ -136,76 +177,78 @@ public class ZsBottomBar extends View {
             int iconLeft = (int) (itemCenterX - (iconSizePx / 2));
             int iconRight = iconLeft + iconSizePx;
             int iconBottom = iconTop + iconSizePx;
-            item.getIcon().setBounds(iconLeft, iconTop, iconRight, iconBottom);
 
-            // Tint and draw the icon
-            item.getIcon().mutate();
-            DrawableCompat.setTint(item.getIcon(), i == activeItem ? currentActiveItemColor : itemTextColor);
-            item.getIcon().draw(canvas);
+            Drawable icon = item.getIcon();
+            icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+            DrawableCompat.setTint(
+                    icon, i == activeItemIndex ? itemTextColorActive : itemTextColor);
+            icon.draw(canvas);
 
-            // Adjust text position
-            paintText.setColor(i == activeItem ? currentActiveItemColor : itemTextColor);
+            // Draw text
+            textPaint.setColor(i == activeItemIndex ? itemTextColorActive : itemTextColor);
             float textY = iconBottom + itemTextSize;
-            canvas.drawText(item.getTitle(), itemCenterX, textY, paintText);
+            canvas.drawText(item.getTitle(), itemCenterX, textY, textPaint);
         }
 
-        // Draw indicator if enabled
-        if (barIndicatorEnabled) {
-            float yPosition = (barIndicatorGravity == 1) ? getHeight() - 10f : 10f;
-            canvas.drawLine(indicatorLocation - barIndicatorWidth / 2, yPosition,
-                    indicatorLocation + barIndicatorWidth / 2, yPosition, paintIndicator);
-        }
-    }
+        // Draw indicator
+        if (isIndicatorEnabled) {
+    float yPosition = (indicatorGravity == 1) ? getHeight() - indicatorHeight : indicatorHeight;
+    
+    canvas.drawRect(
+        indicatorX - barIndicatorWidth / 2,  // Left
+        yPosition - indicatorHeight / 2,     // Top
+        indicatorX + barIndicatorWidth / 2,  // Right
+        yPosition + indicatorHeight / 2,     // Bottom
+        indicatorPaint
+    );
+}}
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             float touchX = event.getX();
-            int newActiveItem = (int) (touchX / (getWidth() / items.size()));
+            int newIndex = (int) (touchX / (getWidth() / items.size()));
 
-            if (newActiveItem != activeItem) {
-                setActiveItem(newActiveItem);
-                if (onItemSelectedListener != null) {
-                    onItemSelectedListener.onItemSelected(newActiveItem); // FIXED LISTENER CALL
+            if (newIndex != activeItemIndex) {
+                setActiveItem(newIndex);
+                if (itemSelectedListener != null) {
+                    itemSelectedListener.onItemSelected(newIndex);
                 }
             }
         }
         return true;
     }
 
-    public void setActiveItem(int pos) {
-        activeItem = pos;
-        animateIndicator(pos);
+    public void setActiveItem(int index) {
+        activeItemIndex = index;
+        animateIndicator(index);
     }
-    private void animateIndicator(int pos) {
-    // Get the target position of the indicator
-    float targetX = getItemCenterX(pos);
 
-    // Create an animator to move the indicator smoothly
-    ValueAnimator animator = ValueAnimator.ofFloat(indicatorLocation, targetX);
-    animator.setInterpolator(new AnticipateOvershootInterpolator()); // Animation effect
-    animator.addUpdateListener(animation -> {
-        indicatorLocation = (float) animation.getAnimatedValue(); // Update the indicator's position
-        invalidate(); // Redraw the view with the updated indicator position
-    });
-
-    // Start the animation
-    animator.start();
-}
+    private void animateIndicator(int index) {
+        float targetX = getItemCenterX(index);
+        ValueAnimator animator = ValueAnimator.ofFloat(indicatorX, targetX);
+        animator.setInterpolator(new AnticipateOvershootInterpolator());
+        animator.addUpdateListener(
+                animation -> {
+                    indicatorX = (float) animation.getAnimatedValue();
+                    invalidate();
+                });
+        animator.start();
+    }
 
     public void setOnItemSelectedListener(OnItemSelectedListener listener) {
-        this.onItemSelectedListener = listener;
+        this.itemSelectedListener = listener;
     }
 
-    private float getItemCenterX(int pos) {
-        return (getWidth() / (float) items.size()) * pos + (getWidth() / (2f * items.size()));
+    private float getItemCenterX(int index) {
+        return (getWidth() / (float) items.size()) * index + (getWidth() / (2f * items.size()));
     }
 
     public interface OnItemSelectedListener {
         void onItemSelected(int position);
     }
 
-    private float d2p(float dp) {
+    private float dpToPx(float dp) {
         return getResources().getDisplayMetrics().density * dp;
     }
 }
